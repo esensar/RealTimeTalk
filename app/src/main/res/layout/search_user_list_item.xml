@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.smarthomies.realtimetalk.viewmodels.UserViewModel"/>
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
+        <ImageView
+            android:id="@+id/ivUserImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@{viewModel.imageUrl}"
+            android:layout_centerVertical="true"
+            />
+
+        <TextView
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:id="@+id/tvUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/ivUserImage"
+            android:layout_toLeftOf="@+id/ivState"
+            android:text="@{viewModel.name}"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            />
+
+        <ImageView
+            android:id="@+id/ivState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@android:drawable/sym_action_call"
+            android:onClick="@{viewModel.changeContactState()}"
+            android:tint="@{viewModel.state ? @color/colorAccent : @color/white}"/>
+    </RelativeLayout>
+</layout>
