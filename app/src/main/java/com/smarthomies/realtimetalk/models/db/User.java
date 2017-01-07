@@ -11,7 +11,7 @@ import io.realm.annotations.PrimaryKey;
 public class User extends RealmObject{
     public static final String TAG = User.class.getSimpleName();
 
-    public static final String PRIMARY_KEY = "username";
+    public static final String PRIMARY_KEY = "id";
 
     @PrimaryKey
     private int id;
