@@ -15,7 +15,7 @@ public class UserDAO extends RealmDAO<User> {
     }
 
     public User findUserById(Realm realm, int id) {
-        return realm.where(entityClass).equalTo(User.PRIMARY_KEY, id).findFirst();
+        return realm.copyFromRealm(realm.where(entityClass).equalTo(User.PRIMARY_KEY, id).findFirst());
     }
 
     public void deleteById(Realm realm, int id) {
