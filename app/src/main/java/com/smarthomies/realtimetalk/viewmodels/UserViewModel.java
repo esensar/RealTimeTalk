@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.smarthomies.realtimetalk.R;
+import com.smarthomies.realtimetalk.database.UserDAO;
 import com.smarthomies.realtimetalk.managers.ContactsManager;
 import com.smarthomies.realtimetalk.models.db.User;
 import com.smarthomies.realtimetalk.views.activities.CallActivity;
@@ -18,6 +19,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.TimeUnit;
 
+import io.realm.Realm;
+import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -37,7 +40,7 @@ public class UserViewModel extends BaseObservable {
     }
 
     public UserViewModel(User model) {
-        this.model = model;
+        setModel(model);
     }
 
     public void setModel(User model) {
@@ -45,6 +48,21 @@ public class UserViewModel extends BaseObservable {
         if (model == null) {
             this.model = new User();
         }
+
+        Realm realm = null;
+        try {
+            realm = Realm.getDefaultInstance();
+            if (new UserDAO().findUserById(realm, this.model.getId()) != null) {
+                state.set(true);
+            } else {
+                state.set(false);
+            }
+        } finally {
+            if(realm != null) {
+                realm.close();
+            }
+        }
+
         notifyChange();
     }
 
@@ -71,8 +89,11 @@ public class UserViewModel extends BaseObservable {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Subscription subscription = new ContactsManager()
-                        .saveContact(model)
+                Observable<Object> objectObservable = state.get()
+                        ? new ContactsManager().deleteContact(model)
+                        : new ContactsManager().saveContact(model);
+
+                final Subscription subscription = objectObservable
                         .delaySubscription(3000, TimeUnit.MILLISECONDS)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -93,7 +114,8 @@ public class UserViewModel extends BaseObservable {
                         });
                 Log.d(TAG, "onClick: ");
                 state.set(!state.get());
-                Snackbar.make(v, model.getFirstName() + " " + model.getLastName() + " added to conctacts.", Snackbar.LENGTH_LONG)
+                String action = state.get() ? "added" : "removed";
+                Snackbar.make(v, model.getFirstName() + " " + model.getLastName() + " " + action + " to contacts.", Snackbar.LENGTH_LONG)
                         .setDuration(3000)
                         .setAction("Undo", new View.OnClickListener() {
                             @Override

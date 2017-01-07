@@ -9,6 +9,8 @@ import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Url;
 import rx.Observable;
 
 /**
@@ -26,7 +28,7 @@ public interface ContactsAPI {
     @POST(NetworkingConstants.API_CONTACTS_ENDPOINT)
     Observable<Object> saveContact(@Body ContactRequest contactRequest);
 
-    @DELETE(NetworkingConstants.API_CONTACTS_ENDPOINT)
-    Observable<Object> deleteContact(@Body ContactRequest contactRequest);
+    @DELETE(NetworkingConstants.API_CONTACTS_DELETE_ENDPOINT)
+    Observable<Object> deleteContact(@Path("id") String id);
 
 }

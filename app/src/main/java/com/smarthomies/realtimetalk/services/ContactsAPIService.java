@@ -44,7 +44,7 @@ public class ContactsAPIService {
     }
 
     public Observable<Object> deleteContact(ContactRequest request) {
-        return RestClient.getInstance().getContactsAPI().deleteContact(request)
+        return RestClient.getInstance().getContactsAPI().deleteContact(request.getUsername())
                 .doOnError(handleApiErrors);
     }
 
