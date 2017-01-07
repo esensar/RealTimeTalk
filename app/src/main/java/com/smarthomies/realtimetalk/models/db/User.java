@@ -2,12 +2,19 @@ package com.smarthomies.realtimetalk.models.db;
 
 import com.google.gson.annotations.SerializedName;
 
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by ensar on 01/11/16.
  */
-public class User{
+public class User extends RealmObject{
     public static final String TAG = User.class.getSimpleName();
 
+    public static final String PRIMARY_KEY = "username";
+
+    @PrimaryKey
+    private int id;
     @SerializedName("first_name")
     private String firstName;
     @SerializedName("last_name")
@@ -16,6 +23,15 @@ public class User{
     private String email;
     @SerializedName("profile_picture")
     private String imageUrl;
+    private String username;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -47,5 +63,13 @@ public class User{
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

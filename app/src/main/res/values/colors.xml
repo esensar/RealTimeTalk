@@ -13,4 +13,6 @@
     <color name="text.hint">@color/white.50</color>
     <color name="text">@color/white</color>
 
+    <color name="black_overlay">#66000000</color>
+
 </resources>

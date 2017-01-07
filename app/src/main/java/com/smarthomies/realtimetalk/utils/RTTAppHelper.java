@@ -10,6 +10,7 @@ public class RTTAppHelper {
     public static final String TAG = RTTAppHelper.class.getSimpleName();
 
     public static final String SHARED_PREFERENCES_USER_TOKEN = "SHARED_PREFERENCES_USER_TOKEN";
+    public static final String SHARED_PREFERENCES_USER_ID = "SHARED_PREFERENCES_USER_ID";
 
     private static RTTAppHelper instance;
     private Context context;
@@ -34,7 +35,21 @@ public class RTTAppHelper {
     }
 
     public String getToken() {
-        return readFromSharedPrefs(SHARED_PREFERENCES_USER_TOKEN);
+        return readFromSharedPrefs(SHARED_PREFERENCES_USER_TOKEN, "");
+    }
+
+    public void saveUserId(int userId) {
+        writeToSharedPrefs(SHARED_PREFERENCES_USER_ID, userId);
+    }
+
+    public int getUserId() {
+        return readFromSharedPrefs(SHARED_PREFERENCES_USER_ID, -1);
+    }
+
+    private void writeToSharedPrefs(String key, int value) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(TAG, Context.MODE_PRIVATE).edit();
+        editor.putInt(key, value);
+        editor.apply();
     }
 
     private void writeToSharedPrefs(String key, String value) {
@@ -50,6 +65,11 @@ public class RTTAppHelper {
     private String readFromSharedPrefs(String key, String defaultValue) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(TAG, Context.MODE_PRIVATE);
         return sharedPreferences.getString(key, defaultValue);
+    }
+
+    private int readFromSharedPrefs(String key, int defaultValue) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(TAG, Context.MODE_PRIVATE);
+        return sharedPreferences.getInt(key, defaultValue);
     }
 
 }

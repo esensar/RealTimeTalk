@@ -1,10 +1,12 @@
 package com.smarthomies.realtimetalk.network;
 
+import com.smarthomies.realtimetalk.network.exceptions.APIConflictException;
 import com.smarthomies.realtimetalk.network.exceptions.APIException;
 import com.smarthomies.realtimetalk.network.exceptions.BadAPIRequestException;
 import com.smarthomies.realtimetalk.network.exceptions.NetworkException;
 import com.smarthomies.realtimetalk.network.exceptions.RemoteResourceNotFoundException;
 import com.smarthomies.realtimetalk.network.exceptions.ResourceForbiddenException;
+import com.smarthomies.realtimetalk.network.exceptions.ServerErrorException;
 import com.smarthomies.realtimetalk.network.exceptions.UnauthorizedException;
 
 import java.io.IOException;
@@ -31,25 +33,16 @@ public class APIErrorHandler {
                     throw new ResourceForbiddenException(throwable);
                 case HttpURLConnection.HTTP_UNAUTHORIZED:
                     throw new UnauthorizedException(throwable);
+                case HttpURLConnection.HTTP_CONFLICT:
+                    throw new APIConflictException(throwable);
+                case HttpURLConnection.HTTP_UNAVAILABLE:
+                case HttpURLConnection.HTTP_INTERNAL_ERROR:
+                    throw new ServerErrorException(throwable);
+
             }
         }
         if(throwable instanceof IOException) {
             throw new NetworkException(throwable);
         }
-    }
-
-    public static void handleLoginErrors(Throwable throwable)
-            throws APIException {
-        handleGeneralAPIErrors(throwable);
-    }
-
-    public static void handleRegistrationErrors(Throwable throwable)
-            throws APIException {
-        handleGeneralAPIErrors(throwable);
-    }
-
-    public static void handleSearchErrors(Throwable throwable)
-            throws APIException {
-        handleGeneralAPIErrors(throwable);
     }
 }

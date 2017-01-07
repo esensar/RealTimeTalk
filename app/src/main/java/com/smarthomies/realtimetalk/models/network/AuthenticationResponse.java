@@ -7,6 +7,7 @@ public class AuthenticationResponse {
     public static final String TAG = AuthenticationResponse.class.getSimpleName();
 
     private String token;
+    private int id;
 
     public String getToken() {
         return token;
@@ -14,5 +15,13 @@ public class AuthenticationResponse {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

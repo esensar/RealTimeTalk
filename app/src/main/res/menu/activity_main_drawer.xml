@@ -2,8 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_menu_manage"
+        android:title="@string/action.profile" />
+
+    <item
         android:id="@+id/nav_logout"
         android:icon="@drawable/ic_menu_send"
-        android:title="Logout" />
+        android:title="@string/action.logout" />
 
 </menu>

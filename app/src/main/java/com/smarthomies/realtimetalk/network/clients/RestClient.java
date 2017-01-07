@@ -1,4 +1,10 @@
-package com.smarthomies.realtimetalk.network;
+package com.smarthomies.realtimetalk.network.clients;
+
+import com.smarthomies.realtimetalk.network.NetworkingConstants;
+import com.smarthomies.realtimetalk.network.apis.AccountAPI;
+import com.smarthomies.realtimetalk.network.apis.AuthenticationAPI;
+import com.smarthomies.realtimetalk.network.apis.ContactsAPI;
+import com.smarthomies.realtimetalk.network.interceptors.AuthorizationInterceptor;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -17,6 +23,7 @@ public class RestClient {
     private Retrofit retrofit;
     private AuthenticationAPI authenticationAPI;
     private ContactsAPI contactsAPI;
+    private AccountAPI accountAPI;
 
     private RestClient() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
@@ -25,6 +32,7 @@ public class RestClient {
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         // add your other interceptors …
+         httpClient.addInterceptor(new AuthorizationInterceptor());
 
         // add logging as last interceptor
         httpClient.addInterceptor(logging);  // <-- this is the important line!
@@ -56,5 +64,12 @@ public class RestClient {
             contactsAPI = retrofit.create(ContactsAPI.class);
         }
         return contactsAPI;
+    }
+
+    public AccountAPI getAccountAPI() {
+        if(accountAPI == null) {
+            accountAPI = retrofit.create(AccountAPI.class);
+        }
+        return accountAPI;
     }
 }

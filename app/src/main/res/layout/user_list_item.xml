@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="8dp"
+        android:onClick="@{viewModel.call()}">
         <ImageView
             android:id="@+id/ivUserImage"
             android:layout_width="40dp"

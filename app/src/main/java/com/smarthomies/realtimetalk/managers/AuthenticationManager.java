@@ -8,6 +8,7 @@ import com.smarthomies.realtimetalk.services.AuthenticationAPIService;
 import com.smarthomies.realtimetalk.utils.RTTAppHelper;
 
 import rx.Observable;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -18,7 +19,8 @@ public class AuthenticationManager {
     public static final String TAG = AuthenticationManager.class.getSimpleName();
 
     public Observable<AuthenticationResponse> loginUser(String username, String password) {
-        return AuthenticationAPIService.getInstance().login(getLoginRequest(username, password)).doOnNext(processAuthenticationResponse);
+        return AuthenticationAPIService.getInstance().login(getLoginRequest(username, password))
+                .doOnNext(processAuthenticationResponse);
     }
 
     public Observable<AuthenticationResponse> registerUser(User user, final String username, final String password) {
@@ -30,7 +32,14 @@ public class AuthenticationManager {
                         return Observable.just(getLoginRequest(username, password));
                     }
                 })
-                .flatMap(requestLogin).doOnNext(processAuthenticationResponse);
+                .flatMap(requestLogin)
+                .doOnNext(processAuthenticationResponse);
+    }
+
+    public Observable<Object> logout() {
+        return AuthenticationAPIService.getInstance().logout()
+                .doOnNext(processLogoutResponse)
+                .doOnError(processLogoutFailure);
     }
 
     private Func1<LoginRequest, Observable<AuthenticationResponse>> requestLogin = new Func1<LoginRequest, Observable<AuthenticationResponse>>() {
@@ -44,8 +53,28 @@ public class AuthenticationManager {
         @Override
         public void call(AuthenticationResponse authenticationResponse) {
             RTTAppHelper.getInstance().saveToken(authenticationResponse.getToken());
+            RTTAppHelper.getInstance().saveUserId(authenticationResponse.getId());
         }
     };
+
+    private Action1<Object> processLogoutResponse = new Action1<Object>() {
+        @Override
+        public void call(Object object) {
+            clearToken();
+        }
+    };
+
+    private Action1<Throwable> processLogoutFailure = new Action1<Throwable>() {
+        @Override
+        public void call(Throwable object) {
+            clearToken();
+        }
+    };
+
+    private void clearToken() {
+        RTTAppHelper.getInstance().saveToken("");
+        RTTAppHelper.getInstance().saveUserId(-1);
+    }
 
     private RegistrationRequest getRegistrationRequest(User user, String username, String password) {
         RegistrationRequest registrationRequest = new RegistrationRequest();

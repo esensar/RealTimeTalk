@@ -2,13 +2,11 @@ package com.smarthomies.realtimetalk.views.activities;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.databinding.Observable;
+import android.databinding.ObservableField;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,24 +14,34 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.smarthomies.realtimetalk.R;
 import com.smarthomies.realtimetalk.RTTActivity;
 import com.smarthomies.realtimetalk.databinding.ActivityMainBinding;
 import com.smarthomies.realtimetalk.databinding.AppBarMainBinding;
-import com.smarthomies.realtimetalk.databinding.NavHeaderMainBinding;
 import com.smarthomies.realtimetalk.models.db.User;
-import com.smarthomies.realtimetalk.viewmodels.UserViewModel;
+import com.smarthomies.realtimetalk.models.network.AuthenticationResponse;
+import com.smarthomies.realtimetalk.utils.RTTErrorUtil;
 import com.smarthomies.realtimetalk.views.adapters.UsersAdapter;
 import com.smarthomies.realtimetalk.views.fragments.MainViewModelHolder;
-import com.smarthomies.realtimetalk.views.fragments.registration.RegistrationViewModelHolder;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.exceptions.CompositeException;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends RTTActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private MainViewModelHolder viewModelHolder;
+
+    private Subscription logoutSubscription;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,24 +62,25 @@ public class MainActivity extends RTTActivity
 
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         AppBarMainBinding appBarMainBinding = binding.appBarMain;
-        User user = new User();
-        user.setFirstName("Ensar");
-        user.setLastName("Sarajcic");
-        user.setEmail("es.ensar@gmail.com");
-        user.setImageUrl("https://avatars3.githubusercontent.com/u/2764831?v=3&s=460");
-        viewModelHolder.getMainViewModel().setUser(user);
+
         binding.setViewModel(viewModelHolder.getMainViewModel());
         appBarMainBinding.setViewModel(viewModelHolder.getMainViewModel());
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvUsersList);
+        viewModelHolder.getMainViewModel().loadContacts();
+        viewModelHolder.getMainViewModel().loadProfile();
+
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvUsersList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        UsersAdapter usersAdapter = new UsersAdapter(UsersAdapter.ViewType.LIST);
-        ArrayList<User> users = new ArrayList<User>();
-        users.add(user);
-        usersAdapter.setUsers(users);
-
-        recyclerView.setAdapter(usersAdapter);
+        viewModelHolder.getMainViewModel().getContacts().addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+            @Override
+            public void onPropertyChanged(Observable observable, int i) {
+                List<User> users = ((ObservableField<List<User>>)observable).get();
+                UsersAdapter usersAdapter = new UsersAdapter(UsersAdapter.ViewType.LIST);
+                usersAdapter.setUsers(users);
+                recyclerView.setAdapter(usersAdapter);
+            }
+        });
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -85,6 +94,59 @@ public class MainActivity extends RTTActivity
         toggle.syncState();
 
         binding.navView.setNavigationItemSelectedListener(this);
+    }
+
+    @Override
+    protected void subscribeToSubjects() {
+        super.subscribeToSubjects();
+        logoutSubscription = getViewModelHolder().getMainViewModel().getLogoutSubject().observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe(new LogoutSubscriber());
+    }
+
+    @Override
+    protected void unsubscribeFromSubjects() {
+        super.unsubscribeFromSubjects();
+        if(logoutSubscription != null && !logoutSubscription.isUnsubscribed()) {
+            logoutSubscription.unsubscribe();
+        }
+    }
+
+    private void reconnectToLogoutSubject() {
+        logoutSubscription = getViewModelHolder().getMainViewModel().createLogoutSubject().observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe(new LogoutSubscriber());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+    private class LogoutSubscriber extends Subscriber<Object> {
+        @Override
+        public void onCompleted() {
+            reconnectToLogoutSubject();
+            getViewModelHolder().getMainViewModel().onLogoutDone();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            reconnectToLogoutSubject();
+            getViewModelHolder().getMainViewModel().onLogoutDone();
+
+            if (e instanceof CompositeException) {
+                for (Throwable ex : ((CompositeException) e).getExceptions()) {
+                    if(ex instanceof RuntimeException) {
+                        handleException(ex.getCause());
+                    }
+                }
+            } else {
+                handleException(e);
+            }
+        }
+
+        @Override
+        public void onNext(Object object) {
+            getViewModelHolder().getMainViewModel().onLogoutDone();
+        }
     }
 
     @Override
@@ -127,8 +189,11 @@ public class MainActivity extends RTTActivity
 
         if (id == R.id.nav_logout) {
             // Handle the camera action
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
+            getViewModelHolder().getMainViewModel().onLogoutClick();
+        }
+
+        if (id == R.id.nav_profile) {
+            getViewModelHolder().getMainViewModel().onProfileClick();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -138,6 +203,10 @@ public class MainActivity extends RTTActivity
 
     public MainViewModelHolder getViewModelHolder() {
         return viewModelHolder;
+    }
+
+    private void handleException(Throwable e) {
+        Toast.makeText(this, RTTErrorUtil.getErrorString(e), Toast.LENGTH_SHORT).show();
     }
 
 }

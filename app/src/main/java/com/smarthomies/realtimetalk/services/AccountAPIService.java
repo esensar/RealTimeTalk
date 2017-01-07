@@ -1,8 +1,8 @@
 package com.smarthomies.realtimetalk.services;
 
-import com.smarthomies.realtimetalk.models.network.AuthenticationResponse;
-import com.smarthomies.realtimetalk.models.network.LoginRequest;
+import com.smarthomies.realtimetalk.models.network.PasswordChangeRequest;
 import com.smarthomies.realtimetalk.models.network.RegistrationRequest;
+import com.smarthomies.realtimetalk.models.network.UserResponse;
 import com.smarthomies.realtimetalk.network.APIErrorHandler;
 import com.smarthomies.realtimetalk.network.clients.RestClient;
 import com.smarthomies.realtimetalk.network.exceptions.APIException;
@@ -14,32 +14,32 @@ import rx.functions.Action1;
 /**
  * Created by ensar on 31/10/16.
  */
-public class AuthenticationAPIService {
-    public static final String TAG = AuthenticationAPIService.class.getSimpleName();
+public class AccountAPIService {
+    public static final String TAG = AccountAPIService.class.getSimpleName();
 
-    private static AuthenticationAPIService instance;
+    private static AccountAPIService instance;
 
-    private AuthenticationAPIService() {}
+    private AccountAPIService() {}
 
-    public static AuthenticationAPIService getInstance() {
+    public static AccountAPIService getInstance() {
         if(instance == null) {
-            instance = new AuthenticationAPIService();
+            instance = new AccountAPIService();
         }
         return instance;
     }
 
-    public Observable<AuthenticationResponse> login(LoginRequest request) {
-        return RestClient.getInstance().getAuthenticationAPI().login(request)
+    public Observable<UserResponse> getProfile() {
+        return RestClient.getInstance().getAccountAPI().getProfile()
                 .doOnError(handleGeneralErrors);
     }
 
-    public Observable<AuthenticationResponse> register(RegistrationRequest request) {
-        return RestClient.getInstance().getAuthenticationAPI().register(request)
+    public Observable<Object> updateProfile(RegistrationRequest request) {
+        return RestClient.getInstance().getAccountAPI().updateProfile(request)
                 .doOnError(handleGeneralErrors);
     }
 
-    public Observable<Object> logout() {
-        return RestClient.getInstance().getAuthenticationAPI().logout()
+    public Observable<Object> changePassword(PasswordChangeRequest request) {
+        return RestClient.getInstance().getAccountAPI().changePassword(request)
                 .doOnError(handleGeneralErrors);
     }
 

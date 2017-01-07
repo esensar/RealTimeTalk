@@ -1,9 +1,10 @@
 package com.smarthomies.realtimetalk.services;
 
+import com.smarthomies.realtimetalk.models.network.ContactRequest;
 import com.smarthomies.realtimetalk.models.network.SearchRequest;
 import com.smarthomies.realtimetalk.models.network.UsersResponse;
 import com.smarthomies.realtimetalk.network.APIErrorHandler;
-import com.smarthomies.realtimetalk.network.RestClient;
+import com.smarthomies.realtimetalk.network.clients.RestClient;
 import com.smarthomies.realtimetalk.network.exceptions.APIException;
 
 import rx.Observable;
@@ -29,14 +30,29 @@ public class ContactsAPIService {
 
     public Observable<UsersResponse> search(SearchRequest request) {
         return RestClient.getInstance().getContactsAPI().searchUsers(request)
-                .doOnError(handleSearchErrors);
+                .doOnError(handleApiErrors);
     }
 
-    private Action1<Throwable> handleSearchErrors = new Action1<Throwable>() {
+    public Observable<UsersResponse> getContacts() {
+        return RestClient.getInstance().getContactsAPI().getContacts()
+                .doOnError(handleApiErrors);
+    }
+
+    public Observable<Object> saveContact(ContactRequest request) {
+        return RestClient.getInstance().getContactsAPI().saveContact(request)
+                .doOnError(handleApiErrors);
+    }
+
+    public Observable<Object> deleteContact(ContactRequest request) {
+        return RestClient.getInstance().getContactsAPI().deleteContact(request)
+                .doOnError(handleApiErrors);
+    }
+
+    private Action1<Throwable> handleApiErrors = new Action1<Throwable>() {
         @Override
         public void call(Throwable throwable) {
             try {
-                APIErrorHandler.handleSearchErrors(throwable);
+                APIErrorHandler.handleGeneralAPIErrors(throwable);
             } catch (APIException apiException) {
                 throw Exceptions.propagate(apiException);
             }

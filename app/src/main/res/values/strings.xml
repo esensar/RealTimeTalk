@@ -10,6 +10,7 @@
     <string name="title.introduction">Tell us who you are</string>
     <string name="title.credentials">Almost there</string>
     <string name="title.search">Search</string>
+    <string name="title.save">Save</string>
 
     <string name="subtitle.welcome">Input your login details</string>
     <string name="subtitle.introduction">Input your full name</string>
@@ -18,6 +19,8 @@
     <!-- Strings related to login -->
     <string name="prompt.username">Username</string>
     <string name="prompt.password">Password</string>
+    <string name="prompt.old_password">Old Password</string>
+    <string name="prompt.new_password">New Password</string>
     <string name="prompt.password_confirm">Confirm Password</string>
     <string name="prompt.email">Email</string>
     <string name="prompt.first_name">First Name</string>
@@ -30,6 +33,8 @@
     <string name="action.forgot_password">Forgot username or password?</string>
     <string name="action.next">Next</string>
     <string name="action.create_account">Create Account</string>
+    <string name="action.logout">Logout</string>
+    <string name="action.profile">Profile</string>
 
     <!-- Login errors -->
     <string name="error.email.invalid">Email address is invalid</string>
@@ -43,6 +48,14 @@
     <string name="error.bad_request">Bad request, blame Dino Dizdarevic!</string>
     <string name="error.user.not_found">User not found!</string>
     <string name="error.user.bad_credentials">Please check your username and password!</string>
+    <string name="error.user.already_exists">User with same username already exists!</string>
+    <string name="error.server">Service is currently unavailable!</string>
     <string name="error.unknown">Unknown error!</string>
+
+    <string name="title_activity_splash_screen">SplashScreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="nazovi">Nazovi</string>
+    <string name="ipAdresa">Ip adresa</string>
 
 </resources>

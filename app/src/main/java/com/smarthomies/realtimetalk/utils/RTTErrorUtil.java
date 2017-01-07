@@ -4,10 +4,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.smarthomies.realtimetalk.R;
+import com.smarthomies.realtimetalk.network.exceptions.APIConflictException;
 import com.smarthomies.realtimetalk.network.exceptions.BadAPIRequestException;
 import com.smarthomies.realtimetalk.network.exceptions.NetworkException;
 import com.smarthomies.realtimetalk.network.exceptions.RemoteResourceNotFoundException;
 import com.smarthomies.realtimetalk.network.exceptions.ResourceForbiddenException;
+import com.smarthomies.realtimetalk.network.exceptions.ServerErrorException;
 import com.smarthomies.realtimetalk.network.exceptions.UnauthorizedException;
 
 /**
@@ -25,8 +27,12 @@ public class RTTErrorUtil {
             return R.string.error_unknown;
         } else if (e instanceof UnauthorizedException) {
             return R.string.error_user_bad_credentials;
+        } else if (e instanceof APIConflictException) {
+            return R.string.error_user_already_exists;
         } else if (e instanceof NetworkException) {
             return R.string.error_no_internet;
+        } else if (e instanceof ServerErrorException) {
+            return R.string.error_server;
         }
         return 0;
     }

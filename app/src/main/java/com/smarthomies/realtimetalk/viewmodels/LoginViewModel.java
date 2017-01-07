@@ -71,10 +71,9 @@ public class LoginViewModel extends BaseObservable {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if(validateFields()) {
-//                    loginUser();
-//                }
-                onLoginDone();
+                if(validateFields()) {
+                    loginUser();
+                }
             }
         };
     }
@@ -90,6 +89,7 @@ public class LoginViewModel extends BaseObservable {
 
     public void onLoginDone() {
         NavigationSubject.getInstance().onNext(new Pair<Class<? extends RTTActivity>, Bundle>(MainActivity.class, null));
+        NavigationSubject.getInstance().onNext(null);
     }
 
     public void onRequestCompleted() {

@@ -49,7 +49,7 @@ public class SearchViewModel extends BaseObservable {
                 });
             }
         });
-        rxSearch = rxSearch.debounce(1000, TimeUnit.MILLISECONDS);
+        rxSearch = rxSearch.debounce(500, TimeUnit.MILLISECONDS);
         subscription = rxSearch.flatMap(new Func1<String, rx.Observable<UsersResponse>>() {
             @Override
             public rx.Observable<UsersResponse> call(String s) {

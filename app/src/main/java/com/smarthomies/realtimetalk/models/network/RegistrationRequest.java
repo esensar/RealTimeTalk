@@ -1,5 +1,7 @@
 package com.smarthomies.realtimetalk.models.network;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by ensar on 31/10/16.
  */
@@ -9,7 +11,9 @@ public class RegistrationRequest {
     private String username;
     private String password;
     private String email;
+    @SerializedName("first_name")
     private String firstName;
+    @SerializedName("last_name")
     private String lastName;
 
     public String getUsername() {

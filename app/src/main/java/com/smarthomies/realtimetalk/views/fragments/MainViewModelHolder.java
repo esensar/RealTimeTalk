@@ -17,4 +17,10 @@ public class MainViewModelHolder extends ViewModelHolder {
     public void setMainViewModel(MainViewModel mainViewModel) {
         this.mainViewModel = mainViewModel;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mainViewModel.clear();
+    }
 }
