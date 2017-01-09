@@ -12,20 +12,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smarthomies.realtimetalk.R;
+import com.smarthomies.realtimetalk.utils.MediaRecorderThread;
 import com.smarthomies.realtimetalk.utils.MediaStreamClient;
 import com.smarthomies.realtimetalk.utils.MediaStreamServer;
+import com.smarthomies.realtimetalk.utils.SocketAudioRecorder;
 
 public class CallActivity extends AppCompatActivity {
 
     private TextView serverStatus;
     private EditText serverIp;
     private Button nazovi;
-    private MediaStreamClient mss;
-    private MediaStreamServer msc;
     // DESIGNATE A PORT
     boolean isRecording;
     private static Handler handler = new Handler();
-    Thread t=null;
+
+    private SocketAudioRecorder socketAudioRecorder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +38,6 @@ public class CallActivity extends AppCompatActivity {
         serverStatus=(TextView) findViewById(R.id.labela);
         nazovi.setOnTouchListener(nazoviL);
         isRecording=false;
-        msc=new MediaStreamServer(CallActivity.this);
-        t=new Thread(msc);
-        t.start();
     }
 
 
@@ -50,11 +48,15 @@ public class CallActivity extends AppCompatActivity {
             String ip=serverIp.getText().toString();
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    msc.stop();
-                    mss=new MediaStreamClient(CallActivity.this,ip);
+                    if(socketAudioRecorder != null) {
+                        socketAudioRecorder.stop();
+                    }
+                    socketAudioRecorder=MediaRecorderThread.getInstance().startStreamingAudio(ip, 8087);
                     break;
                 case MotionEvent.ACTION_UP:
-                    mss.stop(CallActivity.this);
+                    if(socketAudioRecorder != null) {
+                        socketAudioRecorder.stop();
+                    }
                     break;
             }
             return false;

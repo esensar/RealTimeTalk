@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.util.Log;
 
 import com.smarthomies.realtimetalk.R;
 import com.smarthomies.realtimetalk.views.activities.CallActivity;
@@ -31,17 +32,19 @@ public class MediaStreamClient {
             InputStream inputStream = ctx.getResources().openRawResource(R.raw.config);
             prop.load(inputStream);
         } catch (FileNotFoundException e) {
-            System.out.println("Can't finde config");
+            System.out.println("Can't find config");
         } catch (IOException e) {
             System.out.println("Can't load config");
         }
 
         final int frequency = Integer.parseInt(prop.getProperty("frequency"));
-        final int channelConfiguration = Integer.parseInt(prop.getProperty("channal_server"));
+        final int channelConfiguration = Integer.parseInt(prop.getProperty("client_channel"));
         final int audioEncoding = Integer.parseInt(prop.getProperty("audio_encoding"));
-        final int SERVERPORT = Integer.parseInt(prop.getProperty("serverport_server"));
+        final int SERVERPORT = Integer.parseInt(prop.getProperty("port_server"));
+
 
         recBufSize = AudioRecord.getMinBufferSize(frequency, channelConfiguration, audioEncoding);
+        Log.d(TAG, "MediaStreamClient buffer size: " + recBufSize);
         //Log.v(TAG,String.valueOf(AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_CONFIGURATION_MONO , AudioFormat.ENCODING_PCM_16BIT)));
         audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, frequency, channelConfiguration, audioEncoding, recBufSize);
 
@@ -70,7 +73,7 @@ public class MediaStreamClient {
                     }
                 }
                 audioRecord.stop();
-                //audioRecord.release();
+                audioRecord.release();
                 try { connfd.close(); }
                 catch (Exception e) {
                     e.printStackTrace();
